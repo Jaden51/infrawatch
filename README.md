@@ -1,1 +1,1 @@
-# Rust based log aggregation system
+# Rust based infrastructure monitoring
