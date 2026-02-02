@@ -45,7 +45,7 @@ fn main() {
         }
         Commands::Query {} => {
             println!("Querying stored metrics");
-            // TODO: implement connectivity check
+            // TODO: implement querying metrics
         }
     }
 }
