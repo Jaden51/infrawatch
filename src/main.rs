@@ -1,3 +1,7 @@
+mod config;
+
+use std::path::Path;
+
 use clap::{Parser, Subcommand};
 
 #[derive(Parser)]
@@ -34,6 +38,8 @@ enum Commands {
 fn main() {
     let cli = Cli::parse();
 
+    let config_path = cli.config.as_ref().map(Path::new);
+
     match &cli.command {
         Commands::Run {} => {
             println!("Starting the infrawatch daemon");
@@ -41,7 +47,13 @@ fn main() {
         }
         Commands::Check {} => {
             println!("Validating cloud provider connectivity");
-            // TODO: implement connectivity check
+            match config::check::verify_config(config_path) {
+                Ok(_) => println!("Config valid"),
+                Err(e) => {
+                    eprintln!("Config check failed: {}", e);
+                    std::process::exit(1);
+                }
+            }
         }
         Commands::Query {} => {
             println!("Querying stored metrics");
