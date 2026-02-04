@@ -3,9 +3,6 @@ use anyhow::Result;
 use std::path::Path;
 
 pub fn verify_config(config_path: Option<&Path>) -> Result<()> {
-    let config: Config = load_config(config_path)?;
-
-    println!("Printing AWS configuration");
-    println!("AWS Region: {}", config.aws.region);
+    let _config: Config = load_config(config_path)?;
     Ok(())
 }

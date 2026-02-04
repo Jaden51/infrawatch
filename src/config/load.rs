@@ -31,7 +31,7 @@ pub fn init_config() -> Result<PathBuf> {
     let config_path = get_default_path()?;
 
     if config_path.exists() {
-        bail!("Path already exists at {}", config_path.display());
+        bail!("Config already exists at {}", config_path.display());
     }
 
     if let Some(parent) = config_path.parent() {

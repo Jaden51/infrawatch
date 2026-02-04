@@ -67,9 +67,9 @@ fn main() {
         Commands::Init {} => {
             println!("Generating default configuration");
             match config::load::init_config() {
-                Ok(_) => println!("Default config file generated"),
+                Ok(path) => println!("Default config file generated at {}", path.display()),
                 Err(e) => {
-                    eprintln!("Config check failed: {}", e);
+                    eprintln!("Default config initialization failed: {}", e);
                     std::process::exit(1);
                 }
             }
