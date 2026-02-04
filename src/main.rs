@@ -1,3 +1,7 @@
+mod config;
+
+use std::path::Path;
+
 use clap::{Parser, Subcommand};
 
 #[derive(Parser)]
@@ -25,14 +29,21 @@ struct Cli {
 enum Commands {
     /// Start the daemon (poll metrics, detect anomalies, alerts)
     Run {},
+
     /// Validate config and cloud provider connectivity
     Check {},
+
     /// Query stored metrics (for debugging)
     Query {},
+
+    /// Generate default configuration
+    Init {},
 }
 
 fn main() {
     let cli = Cli::parse();
+
+    let config_path = cli.config.as_ref().map(Path::new);
 
     match &cli.command {
         Commands::Run {} => {
@@ -41,11 +52,27 @@ fn main() {
         }
         Commands::Check {} => {
             println!("Validating cloud provider connectivity");
-            // TODO: implement connectivity check
+            match config::check::verify_config(config_path) {
+                Ok(_) => println!("Config valid"),
+                Err(e) => {
+                    eprintln!("Config check failed: {}", e);
+                    std::process::exit(1);
+                }
+            }
         }
         Commands::Query {} => {
             println!("Querying stored metrics");
             // TODO: implement querying metrics
+        }
+        Commands::Init {} => {
+            println!("Generating default configuration");
+            match config::load::init_config() {
+                Ok(path) => println!("Default config file generated at {}", path.display()),
+                Err(e) => {
+                    eprintln!("Default config initialization failed: {}", e);
+                    std::process::exit(1);
+                }
+            }
         }
     }
 }

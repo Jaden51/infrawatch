@@ -1,0 +1,3 @@
+[aws]
+# AWS region for CloudWatch and Cost Explorer APIs
+region = "us-east-1"

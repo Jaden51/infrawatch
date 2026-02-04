@@ -1,0 +1,45 @@
+use std::fs;
+use std::path::{Path, PathBuf};
+
+use anyhow::{Context, Result, bail};
+
+use crate::config::configs::Config;
+
+pub fn get_default_path() -> Result<PathBuf> {
+    let dirs = directories::ProjectDirs::from("", "", "infrawatch")
+        .context("Could not determine config directory")?;
+    let config_dir = dirs.config_dir().join("config.toml");
+    Ok(config_dir)
+}
+
+pub fn load_config(path: Option<&Path>) -> Result<Config> {
+    let config_path = match path {
+        Some(p) => p.to_path_buf(),
+        None => get_default_path()?,
+    };
+
+    let contents = fs::read_to_string(&config_path)
+        .with_context(|| format!("Failed to read config from {}", config_path.display()))?;
+
+    let config: Config = toml::from_str(&contents)
+        .with_context(|| format!("Failed to parse config from {}", config_path.display()))?;
+
+    Ok(config)
+}
+
+pub fn init_config() -> Result<PathBuf> {
+    let config_path = get_default_path()?;
+
+    if config_path.exists() {
+        bail!("Config already exists at {}", config_path.display());
+    }
+
+    if let Some(parent) = config_path.parent() {
+        fs::create_dir_all(parent)?;
+    }
+
+    let template = include_str!("../../config/infrawatch.example.toml");
+    fs::write(&config_path, template)?;
+
+    Ok(config_path)
+}
