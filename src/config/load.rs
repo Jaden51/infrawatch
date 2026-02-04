@@ -1,7 +1,7 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use anyhow::{Context, Result};
+use anyhow::{Context, Result, bail};
 
 use crate::config::configs::Config;
 
@@ -25,4 +25,21 @@ pub fn load_config(path: Option<&Path>) -> Result<Config> {
         .with_context(|| format!("Failed to parse config from {}", config_path.display()))?;
 
     Ok(config)
+}
+
+pub fn init_config() -> Result<PathBuf> {
+    let config_path = get_default_path()?;
+
+    if config_path.exists() {
+        bail!("Path already exists at {}", config_path.display());
+    }
+
+    if let Some(parent) = config_path.parent() {
+        fs::create_dir_all(parent)?;
+    }
+
+    let template = include_str!("../../config/infrawatch.example.toml");
+    fs::write(&config_path, template)?;
+
+    Ok(config_path)
 }

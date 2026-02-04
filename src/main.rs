@@ -29,10 +29,15 @@ struct Cli {
 enum Commands {
     /// Start the daemon (poll metrics, detect anomalies, alerts)
     Run {},
+
     /// Validate config and cloud provider connectivity
     Check {},
+
     /// Query stored metrics (for debugging)
     Query {},
+
+    /// Generate default configuration
+    Init {},
 }
 
 fn main() {
@@ -58,6 +63,16 @@ fn main() {
         Commands::Query {} => {
             println!("Querying stored metrics");
             // TODO: implement querying metrics
+        }
+        Commands::Init {} => {
+            println!("Generating default configuration");
+            match config::load::init_config() {
+                Ok(_) => println!("Default config file generated"),
+                Err(e) => {
+                    eprintln!("Config check failed: {}", e);
+                    std::process::exit(1);
+                }
+            }
         }
     }
 }
