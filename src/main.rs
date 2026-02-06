@@ -1,8 +1,12 @@
+mod cloud;
 mod config;
 
 use std::path::Path;
 
+use anyhow::Result;
 use clap::{Parser, Subcommand};
+
+use crate::cloud::{MetricsProvider, aws::AWSProvider};
 
 #[derive(Parser)]
 #[command(
@@ -40,7 +44,8 @@ enum Commands {
     Init {},
 }
 
-fn main() {
+#[tokio::main]
+async fn main() -> Result<()> {
     let cli = Cli::parse();
 
     let config_path = cli.config.as_ref().map(Path::new);
@@ -52,13 +57,10 @@ fn main() {
         }
         Commands::Check {} => {
             println!("Validating cloud provider connectivity");
-            match config::check::verify_config(config_path) {
-                Ok(_) => println!("Config valid"),
-                Err(e) => {
-                    eprintln!("Config check failed: {}", e);
-                    std::process::exit(1);
-                }
-            }
+            let config = config::check::verify_config(config_path).await?;
+            let provider = AWSProvider::new(&config.aws).await?;
+            provider.verify_connection().await?;
+            println!("Config valid and cloud provider connection successful");
         }
         Commands::Query {} => {
             println!("Querying stored metrics");
@@ -66,13 +68,8 @@ fn main() {
         }
         Commands::Init {} => {
             println!("Generating default configuration");
-            match config::load::init_config() {
-                Ok(path) => println!("Default config file generated at {}", path.display()),
-                Err(e) => {
-                    eprintln!("Default config initialization failed: {}", e);
-                    std::process::exit(1);
-                }
-            }
+            config::load::init_config()?;
         }
     }
+    Ok(())
 }
