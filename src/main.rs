@@ -6,8 +6,6 @@ use std::path::Path;
 use anyhow::Result;
 use clap::{Parser, Subcommand};
 
-use crate::cloud::{MetricsProvider, aws::AWSProvider};
-
 #[derive(Parser)]
 #[command(
     version,
@@ -56,11 +54,7 @@ async fn main() -> Result<()> {
             // TODO: implement daemon
         }
         Commands::Check {} => {
-            println!("Validating cloud provider connectivity");
-            let config = config::check::verify_config(config_path).await?;
-            let provider = AWSProvider::new(&config.aws).await?;
-            provider.verify_connection().await?;
-            println!("Config valid and cloud provider connection successful");
+            config::check::verify_config(config_path).await?;
         }
         Commands::Query {} => {
             println!("Querying stored metrics");

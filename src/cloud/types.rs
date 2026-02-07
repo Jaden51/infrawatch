@@ -1,3 +1,4 @@
+#[derive(Debug)]
 pub struct ConnectionStatus {
     pub connected: bool,
     pub region: String,
