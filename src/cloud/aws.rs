@@ -16,11 +16,14 @@ pub struct AWSProvider {
 
 impl AWSProvider {
     pub async fn new(config: &AWSConfig) -> Result<Self> {
-        let aws_config = aws_config::defaults(BehaviorVersion::latest())
-            .region(aws_config::Region::new(config.region.clone()))
-            .profile_name(config.profile_name.clone())
-            .load()
-            .await;
+        let mut builder = aws_config::defaults(BehaviorVersion::latest())
+            .region(aws_config::Region::new(config.region.clone()));
+
+        if let Some(profile) = &config.profile_name {
+            builder = builder.profile_name(profile.clone());
+        }
+
+        let aws_config = builder.load().await;
 
         let ec2_client = ec2::Client::new(&aws_config);
         let cloudwatch_client = cloudwatch::Client::new(&aws_config);

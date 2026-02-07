@@ -8,5 +8,5 @@ pub struct Config {
 #[derive(Debug, Deserialize)]
 pub struct AWSConfig {
     pub region: String,
-    pub profile_name: String,
+    pub profile_name: Option<String>,
 }

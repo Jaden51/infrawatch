@@ -61,8 +61,8 @@ async fn main() -> Result<()> {
             // TODO: implement querying metrics
         }
         Commands::Init {} => {
-            println!("Generating default configuration");
-            config::load::init_config()?;
+            let config_path = config::load::init_config()?;
+            println!("Configuration written to {}", config_path.display());
         }
     }
     Ok(())

@@ -8,9 +8,9 @@ use std::path::Path;
 pub async fn verify_config(config_path: Option<&Path>) -> Result<()> {
     let config: Config = load_config(config_path)?;
 
-    println!("Configuation loaded successfully\n");
+    println!("Configuration loaded successfully\n");
 
-    println!("Veriying AWS Connectivity...");
+    println!("Verifying AWS Connectivity...");
 
     let provider = AWSProvider::new(&config.aws).await?;
     let status = provider.verify_connection().await?;
