@@ -9,6 +9,8 @@ aws-config = { version = "1.8.13", features = ["credentials-login"] }
 aws-sdk-cloudwatch = "1.102.0"
 aws-sdk-costexplorer = "1.109.0"
 aws-sdk-ec2 = "1.207.0"
+aws-types = "1.3.11"
+chrono = "0.4.43"
 clap = { version = "4.5.56", features = ["derive"] }
 directories = "6.0.0"
 serde = { version = "1.0.228", features = ["derive"] }

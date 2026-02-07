@@ -1,9 +1,10 @@
 use crate::{cloud::MetricsProvider, config::configs::AWSConfig};
-use anyhow::Result;
-use aws_config::BehaviorVersion;
+use anyhow::{Ok, Result};
+use aws_config::{BehaviorVersion, Region};
 use aws_sdk_cloudwatch::{self as cloudwatch};
-use aws_sdk_costexplorer as costexplorer;
+use aws_sdk_costexplorer::{self as costexplorer, types::DateInterval, types::Granularity};
 use aws_sdk_ec2 as ec2;
+use chrono::Utc;
 
 use super::types::{ConnectionStatus, PermissionsCheck};
 
@@ -27,7 +28,14 @@ impl AWSProvider {
 
         let ec2_client = ec2::Client::new(&aws_config);
         let cloudwatch_client = cloudwatch::Client::new(&aws_config);
-        let costexplorer_client = costexplorer::Client::new(&aws_config);
+
+        // Cost Explorer forced to us-east-1
+        let ce_config = aws_config::defaults(BehaviorVersion::latest())
+            .region(Region::new("us-east-1"))
+            .credentials_provider(aws_config.credentials_provider().unwrap().clone())
+            .load()
+            .await;
+        let costexplorer_client = costexplorer::Client::new(&ce_config);
 
         Ok(Self {
             cloudwatch: cloudwatch_client,
@@ -35,6 +43,28 @@ impl AWSProvider {
             ec2: ec2_client,
             region: config.region.clone(),
         })
+    }
+
+    pub async fn verify_cost_explorer_connection(&self) -> Result<bool> {
+        let start_date = Utc::now() - chrono::Duration::days(1);
+        let end_date = Utc::now();
+
+        let date_interval = DateInterval::builder()
+            .start(start_date.format("%Y-%m-%d").to_string())
+            .end(end_date.format("%Y-%m-%d").to_string())
+            .build()?;
+
+        let response = self
+            .costexplorer
+            .get_cost_and_usage()
+            .time_period(date_interval)
+            .granularity(Granularity::Daily)
+            .metrics("UnblendedCost")
+            .send()
+            .await
+            .is_ok();
+
+        Ok(response)
     }
 }
 
@@ -46,9 +76,6 @@ impl MetricsProvider for AWSProvider {
             instance_describe: false,
         };
 
-        // TODO: cost explorer check
-        permissions.cost_explorer_read = false;
-
         permissions.metrics_monitor_read = self.cloudwatch.list_metrics().send().await.is_ok();
 
         permissions.instance_describe = self
@@ -58,6 +85,8 @@ impl MetricsProvider for AWSProvider {
             .send()
             .await
             .is_ok();
+
+        permissions.cost_explorer_read = self.verify_cost_explorer_connection().await.is_ok();
 
         Ok(ConnectionStatus {
             connected: permissions.metrics_monitor_read || permissions.instance_describe,
