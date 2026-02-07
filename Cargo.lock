@@ -1468,7 +1468,6 @@ dependencies = [
  "aws-sdk-cloudwatch",
  "aws-sdk-costexplorer",
  "aws-sdk-ec2",
- "aws-types",
  "chrono",
  "clap",
  "directories",

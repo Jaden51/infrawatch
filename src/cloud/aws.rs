@@ -1,5 +1,5 @@
 use crate::{cloud::MetricsProvider, config::configs::AWSConfig};
-use anyhow::{Ok, Result};
+use anyhow::Result;
 use aws_config::{BehaviorVersion, Region};
 use aws_sdk_cloudwatch::{self as cloudwatch};
 use aws_sdk_costexplorer::{self as costexplorer, types::DateInterval, types::Granularity};
@@ -30,11 +30,10 @@ impl AWSProvider {
         let cloudwatch_client = cloudwatch::Client::new(&aws_config);
 
         // Cost Explorer forced to us-east-1
-        let ce_config = aws_config::defaults(BehaviorVersion::latest())
+        let ce_config = aws_config
+            .into_builder()
             .region(Region::new("us-east-1"))
-            .credentials_provider(aws_config.credentials_provider().unwrap().clone())
-            .load()
-            .await;
+            .build();
         let costexplorer_client = costexplorer::Client::new(&ce_config);
 
         Ok(Self {
@@ -45,7 +44,7 @@ impl AWSProvider {
         })
     }
 
-    pub async fn verify_cost_explorer_connection(&self) -> Result<bool> {
+    pub async fn verify_cost_explorer_connection(&self) -> Result<()> {
         let start_date = Utc::now() - chrono::Duration::days(1);
         let end_date = Utc::now();
 
@@ -54,17 +53,15 @@ impl AWSProvider {
             .end(end_date.format("%Y-%m-%d").to_string())
             .build()?;
 
-        let response = self
-            .costexplorer
+        self.costexplorer
             .get_cost_and_usage()
             .time_period(date_interval)
             .granularity(Granularity::Daily)
             .metrics("UnblendedCost")
             .send()
-            .await
-            .is_ok();
+            .await?;
 
-        Ok(response)
+        Ok(())
     }
 }
 
