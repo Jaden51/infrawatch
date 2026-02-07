@@ -1,7 +1,9 @@
+mod cloud;
 mod config;
 
 use std::path::Path;
 
+use anyhow::Result;
 use clap::{Parser, Subcommand};
 
 #[derive(Parser)]
@@ -40,7 +42,8 @@ enum Commands {
     Init {},
 }
 
-fn main() {
+#[tokio::main]
+async fn main() -> Result<()> {
     let cli = Cli::parse();
 
     let config_path = cli.config.as_ref().map(Path::new);
@@ -51,28 +54,16 @@ fn main() {
             // TODO: implement daemon
         }
         Commands::Check {} => {
-            println!("Validating cloud provider connectivity");
-            match config::check::verify_config(config_path) {
-                Ok(_) => println!("Config valid"),
-                Err(e) => {
-                    eprintln!("Config check failed: {}", e);
-                    std::process::exit(1);
-                }
-            }
+            config::check::verify_config(config_path).await?;
         }
         Commands::Query {} => {
             println!("Querying stored metrics");
             // TODO: implement querying metrics
         }
         Commands::Init {} => {
-            println!("Generating default configuration");
-            match config::load::init_config() {
-                Ok(path) => println!("Default config file generated at {}", path.display()),
-                Err(e) => {
-                    eprintln!("Default config initialization failed: {}", e);
-                    std::process::exit(1);
-                }
-            }
+            let config_path = config::load::init_config()?;
+            println!("Configuration written to {}", config_path.display());
         }
     }
+    Ok(())
 }
