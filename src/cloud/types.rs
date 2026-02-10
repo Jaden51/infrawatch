@@ -11,3 +11,12 @@ pub struct PermissionsCheck {
     pub metrics_monitor_read: bool,
     pub instance_describe: bool,
 }
+
+#[derive(Debug)]
+pub struct Instance {
+    pub instance_id: String,
+    pub instance_type: String,
+    pub state: String,
+    pub name: Option<String>,
+    pub tags: Vec<(String, String)>,
+}

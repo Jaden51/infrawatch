@@ -1,12 +1,12 @@
 use crate::{cloud::MetricsProvider, config::configs::AWSConfig};
-use anyhow::Result;
+use anyhow::{Context, Result};
 use aws_config::{BehaviorVersion, Region};
 use aws_sdk_cloudwatch::{self as cloudwatch};
 use aws_sdk_costexplorer::{self as costexplorer, types::DateInterval, types::Granularity};
-use aws_sdk_ec2 as ec2;
+use aws_sdk_ec2::{self as ec2, types::Filter};
 use chrono::Utc;
 
-use super::types::{ConnectionStatus, PermissionsCheck};
+use super::types::{ConnectionStatus, Instance, PermissionsCheck};
 
 pub struct AWSProvider {
     cloudwatch: cloudwatch::Client,
@@ -90,5 +90,67 @@ impl MetricsProvider for AWSProvider {
             region: self.region.clone(),
             permissions,
         })
+    }
+
+    async fn discover_instances(&self, tag_filters: &[(String, String)]) -> Result<Vec<Instance>> {
+        let mut request = self.ec2.describe_instances();
+        for (key, value) in tag_filters {
+            let filter = Filter::builder()
+                .name(format!("tag:{}", key))
+                .values(value)
+                .build();
+            request = request.filters(filter)
+        }
+
+        let response = request
+            .send()
+            .await
+            .context("Failed to describe EC2 instances")?;
+
+        let mut instances = Vec::new();
+
+        for reservation in response.reservations() {
+            for instance in reservation.instances() {
+                let instance_id = instance
+                    .instance_id()
+                    .ok_or_else(|| anyhow::anyhow!("Instance missing ID"))?
+                    .to_string();
+
+                let instance_type = instance
+                    .instance_type()
+                    .map(|t| t.as_str().to_string())
+                    .ok_or_else(|| anyhow::anyhow!("Instance type missing"))?
+                    .to_string();
+
+                let state = instance
+                    .state()
+                    .and_then(|s| s.name())
+                    .map(|n| n.as_str().to_string())
+                    .unwrap_or_else(|| "unknown".to_string());
+
+                let name = instance
+                    .tags()
+                    .iter()
+                    .find(|t| t.key() == Some("Name"))
+                    .and_then(|t| t.value())
+                    .map(|t| t.to_string());
+
+                let tags: Vec<_> = instance
+                    .tags()
+                    .iter()
+                    .filter_map(|t| Some((t.key()?.to_string(), t.value()?.to_string())))
+                    .collect();
+
+                instances.push(Instance {
+                    instance_id,
+                    instance_type,
+                    state,
+                    name,
+                    tags,
+                });
+            }
+        }
+
+        Ok(instances)
     }
 }

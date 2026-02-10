@@ -47,6 +47,8 @@ pub async fn verify_config(config_path: Option<&Path>) -> Result<()> {
         anyhow::bail!("Could not connect to AWS. Check your credentials and permissions.");
     }
 
+    println!("{:?}", provider.discover_instances(&[]).await.unwrap());
+
     println!("\n Configuration and AWS connectivity verified");
     Ok(())
 }
