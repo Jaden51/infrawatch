@@ -14,5 +14,14 @@ pub struct AWSConfig {
 
 #[derive(Debug, Deserialize)]
 pub struct MetricsConfig {
+    #[serde(default = "default_instance_metrics")]
     pub instance_metrics: Vec<String>,
+}
+
+fn default_instance_metrics() -> Vec<String> {
+    vec![
+        "CPUUtilization".into(),
+        "NetworkIn".into(),
+        "NetworkOut".into(),
+    ]
 }

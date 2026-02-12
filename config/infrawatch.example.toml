@@ -6,8 +6,5 @@ region = "us-east-1"
 profile_name = "ec2_instance"
 
 [metrics]
-# How often to poll for new metrics (in seconds)
-poll_interval_secs = 300
-
 # Cloud provider metrics to monitor
 instance_metrics = ["CPUUtilization", "NetworkIn", "NetworkOut"]

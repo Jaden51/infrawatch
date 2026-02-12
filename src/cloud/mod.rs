@@ -24,7 +24,6 @@ pub trait MetricsProvider: Send + Sync {
     ) -> Result<Vec<MetricDataPoint>>;
 
     /// Fetch and compute cost metrics for the given instance IDs
-    /// If instance_ids is empty, fetch and compute for all instances
     async fn fetch_cost_data(
         &self,
         start_date: DateTime<Utc>,

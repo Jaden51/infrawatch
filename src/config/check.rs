@@ -3,8 +3,6 @@ use crate::{
     config::{configs::Config, load::load_config},
 };
 use anyhow::Result;
-use aws_sdk_costexplorer::types::Granularity;
-use chrono::Utc;
 use std::path::Path;
 
 pub async fn verify_config(config_path: Option<&Path>) -> Result<()> {
