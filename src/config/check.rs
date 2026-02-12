@@ -35,14 +35,6 @@ pub async fn verify_config(config_path: Option<&Path>) -> Result<()> {
             "FAILED"
         }
     );
-    println!(
-        "    Cost Explorer: {}",
-        if status.permissions.cost_explorer_read {
-            "OK"
-        } else {
-            "FAILED"
-        }
-    );
 
     if !status.connected {
         anyhow::bail!("Could not connect to AWS. Check your credentials and permissions.");
