@@ -9,7 +9,6 @@ pub struct ConnectionStatus {
 
 #[derive(Debug)]
 pub struct PermissionsCheck {
-    pub cost_explorer_read: bool,
     pub metrics_monitor_read: bool,
     pub instance_describe: bool,
 }
@@ -30,13 +29,4 @@ pub struct MetricDataPoint {
     pub value: f64,
     pub unit: Option<String>,
     pub timestamp: DateTime<Utc>,
-}
-
-#[derive(Debug)]
-pub struct CostDataPoint {
-    pub service: Option<String>,
-    pub amount: f64,
-    pub unit: String,
-    pub period_start: DateTime<Utc>,
-    pub period_end: DateTime<Utc>,
 }

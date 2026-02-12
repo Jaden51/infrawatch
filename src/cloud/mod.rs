@@ -1,6 +1,5 @@
-use crate::cloud::types::{ConnectionStatus, CostDataPoint, Instance, MetricDataPoint};
+use crate::cloud::types::{ConnectionStatus, Instance, MetricDataPoint};
 use anyhow::Result;
-use aws_sdk_costexplorer::types::Granularity;
 use chrono::{DateTime, Utc};
 
 pub mod aws;
@@ -22,12 +21,4 @@ pub trait MetricsProvider: Send + Sync {
         start_time: DateTime<Utc>,
         end_time: DateTime<Utc>,
     ) -> Result<Vec<MetricDataPoint>>;
-
-    /// Fetch and compute cost metrics for the given instance IDs
-    async fn fetch_cost_data(
-        &self,
-        start_date: DateTime<Utc>,
-        end_date: DateTime<Utc>,
-        granularity: Granularity,
-    ) -> Result<Vec<CostDataPoint>>;
 }
