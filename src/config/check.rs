@@ -10,6 +10,7 @@ pub async fn verify_config(config_path: Option<&Path>) -> Result<()> {
 
     println!("Configuration loaded successfully\n");
 
+    // AWS Connectivity
     println!("Verifying AWS Connectivity...");
 
     let provider = AWSProvider::new(&config.aws).await?;

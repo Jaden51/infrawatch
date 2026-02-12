@@ -2,3 +2,6 @@
 region = "us-west-2"
 profile_name = "infrawatch-daemon"
 
+[metrics]
+instance_metrics = ["CPUUtilization", "NetworkIn", "NetworkOut"]
+
