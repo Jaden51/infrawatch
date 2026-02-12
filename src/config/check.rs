@@ -3,6 +3,8 @@ use crate::{
     config::{configs::Config, load::load_config},
 };
 use anyhow::Result;
+use aws_sdk_costexplorer::types::Granularity;
+use chrono::Utc;
 use std::path::Path;
 
 pub async fn verify_config(config_path: Option<&Path>) -> Result<()> {
@@ -10,6 +12,7 @@ pub async fn verify_config(config_path: Option<&Path>) -> Result<()> {
 
     println!("Configuration loaded successfully\n");
 
+    // AWS Connectivity
     println!("Verifying AWS Connectivity...");
 
     let provider = AWSProvider::new(&config.aws).await?;
@@ -46,8 +49,6 @@ pub async fn verify_config(config_path: Option<&Path>) -> Result<()> {
     if !status.connected {
         anyhow::bail!("Could not connect to AWS. Check your credentials and permissions.");
     }
-
-    println!("{:?}", provider.discover_instances(&[]).await.unwrap());
 
     println!("\n Configuration and AWS connectivity verified");
     Ok(())
