@@ -23,24 +23,24 @@ pub struct DiskMetrics {
 }
 
 #[derive(Debug)]
-pub struct ProcessesMetrics {
+pub struct ProcessMetrics {
     pub process_count: usize,
-    pub process_info: Vec<ProcessMetric>,
+    pub process_info: Vec<Process>,
     pub timestamp: DateTime<Utc>,
 }
 
 #[derive(Debug)]
-pub struct ProcessMetric {
+pub struct Process {
     pub pid: u32,
     pub name: String,
     pub cpu_usage: f32,
-    pub memory: u64,
+    pub memory_bytes: u64,
 }
 
 #[derive(Debug)]
 pub struct SystemSnapshot {
     pub memory: MemoryMetrics,
     pub disk: Vec<DiskMetrics>, // one entry per mount point
-    pub processes: ProcessesMetrics,
+    pub processes: ProcessMetrics,
     pub hostname: String,
 }

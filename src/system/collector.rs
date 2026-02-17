@@ -1,12 +1,10 @@
 use anyhow::Result;
 use chrono::Utc;
-use sysinfo::{
-    CpuRefreshKind, MemoryRefreshKind, ProcessRefreshKind, ProcessesToUpdate, RefreshKind, System,
-};
+use sysinfo::{MemoryRefreshKind, ProcessRefreshKind, ProcessesToUpdate, RefreshKind, System};
 
 use crate::system::{
     SystemCollector,
-    types::{DiskMetrics, MemoryMetrics, ProcessMetric, ProcessesMetrics, SystemSnapshot},
+    types::{DiskMetrics, MemoryMetrics, Process, ProcessMetrics, SystemSnapshot},
 };
 
 pub struct SysinfoCollector {
@@ -16,7 +14,6 @@ pub struct SysinfoCollector {
 impl SysinfoCollector {
     pub fn new() -> Result<Self> {
         let refresh_kind = RefreshKind::nothing()
-            .with_cpu(CpuRefreshKind::everything())
             .with_memory(MemoryRefreshKind::everything())
             .with_processes(ProcessRefreshKind::everything());
 
@@ -27,12 +24,22 @@ impl SysinfoCollector {
 
 impl SystemCollector for SysinfoCollector {
     fn collect_all(&mut self) -> Result<SystemSnapshot> {
-        // Run processes collection twice to ensure CPU deltas are populated
-        let _ = self.collect_processes()?;
-        std::thread::sleep(std::time::Duration::from_millis(500));
+        // Run processes collection twice to ensure CPU deltas are populated.
+        // Use the time spent collecting disk and memory to cover most of the
+        // required delay between process samples.
+        let start = std::time::Instant::now();
 
+        let _ = self.collect_processes()?;
         let disk = self.collect_disk()?;
         let memory = self.collect_memory()?;
+
+        let min_delay = std::time::Duration::from_millis(500);
+
+        let elapsed = start.elapsed();
+        if elapsed < min_delay {
+            std::thread::sleep(min_delay - elapsed);
+        }
+
         let processes = self.collect_processes()?;
         let hostname = sysinfo::System::host_name().unwrap_or_else(|| "unknown".to_string());
 
@@ -72,7 +79,10 @@ impl SystemCollector for SysinfoCollector {
 
     fn collect_disk(&mut self) -> Result<Vec<DiskMetrics>> {
         let disks = sysinfo::Disks::new_with_refreshed_list();
+        let timestamp = Utc::now();
+
         let mut result: Vec<DiskMetrics> = Vec::new();
+
         for disk in disks.list() {
             let mount_point = disk.mount_point().to_string_lossy().into_owned();
             let filesystem_type = disk.file_system().to_string_lossy().into_owned();
@@ -92,7 +102,7 @@ impl SystemCollector for SysinfoCollector {
                 used_bytes,
                 available_bytes,
                 usage_percent,
-                timestamp: Utc::now(),
+                timestamp,
             };
             result.push(metric);
         }
@@ -100,7 +110,7 @@ impl SystemCollector for SysinfoCollector {
         Ok(result)
     }
 
-    fn collect_processes(&mut self) -> Result<ProcessesMetrics> {
+    fn collect_processes(&mut self) -> Result<ProcessMetrics> {
         self.system.refresh_processes(ProcessesToUpdate::All, true);
         let mut processes: Vec<_> = self.system.processes().values().collect();
 
@@ -110,10 +120,10 @@ impl SystemCollector for SysinfoCollector {
                 .unwrap_or(std::cmp::Ordering::Equal)
         });
 
-        let mut process_info: Vec<ProcessMetric> = Vec::new();
+        let mut process_info: Vec<Process> = Vec::new();
 
         for process in processes.iter().take(5) {
-            process_info.push(ProcessMetric {
+            process_info.push(Process {
                 pid: process.pid().as_u32(),
                 name: process.name().to_string_lossy().into_owned(),
                 cpu_usage: process.cpu_usage(),
@@ -121,7 +131,7 @@ impl SystemCollector for SysinfoCollector {
             });
         }
 
-        Ok(ProcessesMetrics {
+        Ok(ProcessMetrics {
             process_count: processes.len(),
             process_info,
             timestamp: Utc::now(),
