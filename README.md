@@ -2,33 +2,33 @@
 
 infrawatch is a lightweight Rust-based infrastructure monitoring and anomaly detection agent designed for cloud and hybrid environments. It collects host-level system metrics (memory, disk, processes) and cloud provider metrics (AWS CloudWatch), detects anomalies using configurable rules, and can alert via webhooks.
 
-Key highlights:
+### Key highlights:
 - Written in Rust for safety, performance, and minimal runtime overhead
 - Integrates with AWS CloudWatch and EC2 for instance discovery and cloud metrics
 - Collects rich host-level metrics locally using the `sysinfo` crate
 - Pluggable analysis pipeline
 - Designed to be extended with alerting
 
-Features
+### Features
 - Host-level metrics: memory, disk, and processes information.
 - Cloud metrics: pulls CloudWatch metrics for EC2 instances.
 - Unified analysis pipeline: normalized metrics flow through detectors.
 - CLI utility: `run`, `check`, `query`, `init` subcommands.
 - Platform-friendly: small binary, no credentials stored (uses standard AWS credential chain).
 
-Getting started
+## Getting started
 
-Prerequisites
+### Prerequisites
 - Rust toolchain (stable or a recent nightly if you use the `edition = "2024"` entry in `Cargo.toml`).
 - AWS credentials configured if you want CloudWatch integration.
 
-Build
+**Build**
 
 ```
 cargo build --release
 ```
 
-Run the CLI
+**Run the CLI**
 
 - Generate a config template in the platform-appropriate config directory:
 
@@ -48,7 +48,7 @@ cargo run -- check
 cargo run -- run
 ```
 
-Configuration
+### Configuration
 
 - The canonical example configuration is at `config/infrawatch.example.toml` and is copied to the host config directory when running `cargo run -- init`.
 - Important sections:
