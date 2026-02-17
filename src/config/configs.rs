@@ -15,7 +15,6 @@ pub struct AWSConfig {
 
 #[derive(Debug, Deserialize)]
 pub struct MetricsConfig {
-    pub enabled: bool,
     #[serde(default = "default_instance_metrics")]
     pub instance_metrics: Vec<String>,
 }
