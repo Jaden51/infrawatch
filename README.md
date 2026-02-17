@@ -55,6 +55,4 @@ cargo run -- run
   - `[aws]` — `region` and optional `profile_name` for AWS SDK behavior
   - `[metrics]` — which CloudWatch metrics to fetch
   - `[system]` — toggles for collecting memory, disk, and process metrics
-  - `[analysis]` — threshold rules for anomaly detection (see roadmap if not present)
-
-Minimal README written to be resume-friendly and highlight core engineering decisions. Extend with architecture diagrams, example alerts, screenshots, and telemetry outputs as you implement alerting and the daemon loop.
+  - `[analysis]` — threshold rules for anomaly detection
