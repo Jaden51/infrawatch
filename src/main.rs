@@ -39,7 +39,8 @@ enum Commands {
     /// Query stored metrics (for debugging)
     Query {},
 
-    /// Generate default configuration
+    /// Initialize the default configuration file. This writes the bundled example config to the
+    /// default config location and will overwrite any existing configuration file at that path.
     Init {},
 }
 
