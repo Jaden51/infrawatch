@@ -1,6 +1,8 @@
+use crate::system::types::SystemSnapshot;
 use crate::{
     cloud::{MetricsProvider, aws::AWSProvider},
     config::{configs::Config, load::load_config},
+    system::{SystemCollector, collector::SysinfoCollector},
 };
 use anyhow::Result;
 use chrono::Utc;
@@ -11,7 +13,6 @@ pub async fn verify_config(config_path: Option<&Path>) -> Result<()> {
 
     println!("Configuration loaded successfully\n");
 
-    // AWS Connectivity
     println!("Verifying AWS Connectivity...");
 
     let provider = AWSProvider::new(&config.aws).await?;
@@ -73,6 +74,57 @@ pub async fn verify_config(config_path: Option<&Path>) -> Result<()> {
         println!("    Value: {}", metric.value);
         println!("    Unit: {:?}", metric.unit);
         println!("    Timestamp: {:?}", metric.timestamp);
+    }
+
+    println!("\nFetching System Information Metrics");
+    let mut system_collector = SysinfoCollector::new()?;
+
+    let _ = system_collector.collect_processes()?;
+
+    std::thread::sleep(std::time::Duration::from_millis(500));
+
+    let snapshot = system_collector.collect_all()?;
+
+    let SystemSnapshot {
+        memory: memory_metrics,
+        disk: disk_metrics,
+        processes: processes_metrics,
+        hostname,
+    } = snapshot;
+
+    println!("\nHostname: {}", hostname);
+
+    println!(
+        "\nSystem Memory (timestamp: {:?}):",
+        memory_metrics.timestamp
+    );
+    println!("  Total: {} bytes", memory_metrics.total_bytes);
+    println!("  Used: {} bytes", memory_metrics.used_bytes);
+    println!("  Available: {} bytes", memory_metrics.available_bytes);
+    println!("  Usage: {:.2}%", memory_metrics.usage_percent);
+    println!("  Swap Total: {} bytes", memory_metrics.swap_total_bytes);
+    println!("  Swap Used: {} bytes", memory_metrics.swap_used_bytes);
+
+    println!("\nDisks:");
+    for d in disk_metrics.iter() {
+        println!("  Mount: {} (timestamp: {:?})", d.mount_point, d.timestamp);
+        println!("    FS: {}", d.filesystem_type);
+        println!("    Total: {} bytes", d.total_bytes);
+        println!("    Used: {} bytes", d.used_bytes);
+        println!("    Available: {} bytes", d.available_bytes);
+        println!("    Usage: {:.2}%", d.usage_percent);
+    }
+
+    println!(
+        "\nTop Processes (timestamp: {:?}):",
+        processes_metrics.timestamp
+    );
+    println!("  Count: {}", processes_metrics.process_count);
+    for p in processes_metrics.process_info.iter() {
+        println!(
+            "    PID: {}  Name: {}  CPU: {:.2}%  Mem: {} KB",
+            p.pid, p.name, p.cpu_usage, p.memory
+        );
     }
 
     println!("\n Configuration and AWS connectivity verified");
