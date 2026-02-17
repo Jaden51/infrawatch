@@ -6,5 +6,20 @@ region = "us-east-1"
 profile_name = "ec2_instance"
 
 [metrics]
+# Enable cloud provider metrics
+enabled = true
 # Cloud provider metrics to monitor
 instance_metrics = ["CPUUtilization", "NetworkIn", "NetworkOut"]
+
+[system]
+# Enable system metrics collection
+enabled = true 
+
+# Toggle memory metrics collection
+collect_memory = true
+
+# Toggle disk metrics collection 
+collect_disk = true
+
+# Toggle proccess metric collection
+collect_processes = true

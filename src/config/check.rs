@@ -122,8 +122,8 @@ pub async fn verify_config(config_path: Option<&Path>) -> Result<()> {
     println!("  Count: {}", processes_metrics.process_count);
     for p in processes_metrics.process_info.iter() {
         println!(
-            "    PID: {}  Name: {}  CPU: {:.2}%  Mem: {} KB",
-            p.pid, p.name, p.cpu_usage, p.memory
+            "    PID: {}  Name: {}  CPU: {:.2}%  Mem: {} Bytes",
+            p.pid, p.name, p.cpu_usage, p.memory_bytes
         );
     }
 

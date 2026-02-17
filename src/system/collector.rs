@@ -127,7 +127,7 @@ impl SystemCollector for SysinfoCollector {
                 pid: process.pid().as_u32(),
                 name: process.name().to_string_lossy().into_owned(),
                 cpu_usage: process.cpu_usage(),
-                memory: process.memory(),
+                memory_bytes: process.memory(),
             });
         }
 
