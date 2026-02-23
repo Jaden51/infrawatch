@@ -58,11 +58,7 @@ impl From<SystemSnapshot> for Vec<Metric> {
         });
 
         let disk_metrics = snapshot.disk.iter().flat_map(|d| {
-            let mount = d
-                .mount_point
-                .replace('/', "_")
-                .replace(' ', "_")
-                .replace('.', "_");
+            let mount = d.mount_point.replace(['/', ' ', '.'], "_");
             [
                 (
                     format!("disk.{mount}.total_bytes"),
