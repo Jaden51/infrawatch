@@ -1,6 +1,7 @@
 use crate::analysis::types::{Anomaly, Metric};
 
 mod convert;
+mod threshold;
 mod types;
 
 pub trait AnomalyDetector {
