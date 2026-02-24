@@ -15,7 +15,7 @@ collect_processes = true
 mode = "threshold"
 
 [[analysis.thresholds]]
-metric_name = "memory_usage_percent"
+metric_name = "memory.usage_percent"
 warning = 80.0
 critical = 90.0
 
@@ -24,7 +24,9 @@ metric_name = "CPUUtilization"
 warning = 70.0
 critical = 90.0
 
+# Disk usage metrics are emitted as: disk.{mount}.usage_percent
+# For the root filesystem ("/"), the mount is normalized to "_": disk._.usage_percent
 [[analysis.thresholds]]
-metric_name = "disk_usage_percent"
+metric_name = "disk._.usage_percent"
 warning = 80.0
 critical = 95.0

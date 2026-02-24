@@ -1,3 +1,4 @@
+use crate::analysis::types::Metric;
 use crate::system::types::SystemSnapshot;
 use crate::{
     cloud::{MetricsProvider, aws::AWSProvider},
@@ -90,7 +91,7 @@ pub async fn verify_config(config_path: Option<&Path>) -> Result<()> {
         disk: disk_metrics,
         processes: processes_metrics,
         hostname,
-    } = snapshot;
+    } = &snapshot;
 
     println!("\nHostname: {}", hostname);
 

@@ -23,6 +23,7 @@ impl ThresholdDetector {
             .collect::<HashMap<_, _>>();
         Ok(Self { thresholds })
     }
+
     fn format_value(value: f64, unit: Option<&str>) -> String {
         match unit {
             Some("%") => format!("{value:.1}%"),
@@ -45,7 +46,7 @@ impl ThresholdDetector {
         )
     }
 
-    fn create_anomaly(metric: &Metric, threshold: f64) -> Anomaly {
+    fn create_anomaly(metric: &Metric, threshold: f64, severity: Severity) -> Anomaly {
         Anomaly {
             metric: Metric {
                 name: metric.name.clone(),
@@ -54,7 +55,7 @@ impl ThresholdDetector {
                 unit: metric.unit.clone(),
                 timestamp: metric.timestamp,
             },
-            reason: Self::format_reason(metric, Severity::Critical, threshold),
+            reason: Self::format_reason(metric, severity, threshold),
             severity: Severity::Critical,
             detected_at: Utc::now(),
         }
@@ -72,12 +73,13 @@ impl AnomalyDetector for ThresholdDetector {
             if let Some(critical) = rule.critical
                 && metric.value >= critical
             {
-                anomalies.push(Self::create_anomaly(metric, critical));
+                anomalies.push(Self::create_anomaly(metric, critical, Severity::Critical));
+                continue;
             }
             if let Some(warning) = rule.warning
                 && metric.value >= warning
             {
-                anomalies.push(Self::create_anomaly(metric, warning));
+                anomalies.push(Self::create_anomaly(metric, warning, Severity::Warning));
             }
         }
         anomalies
