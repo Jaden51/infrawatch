@@ -5,6 +5,7 @@ pub struct Config {
     pub aws: AWSConfig,
     pub metrics: MetricsConfig,
     pub system: SystemConfig,
+    pub analysis: AnalysisConfig,
 }
 
 #[derive(Debug, Deserialize)]
@@ -25,6 +26,19 @@ pub struct SystemConfig {
     pub collect_memory: bool,
     pub collect_disk: bool,
     pub collect_processes: bool,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct AnalysisConfig {
+    pub mode: String,
+    pub thresholds: Vec<ThresholdRule>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct ThresholdRule {
+    pub metric_name: String,
+    pub warning: Option<f64>,
+    pub critical: Option<f64>,
 }
 
 fn default_instance_metrics() -> Vec<String> {

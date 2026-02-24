@@ -1,3 +1,4 @@
+mod analysis;
 mod cloud;
 mod config;
 mod system;
