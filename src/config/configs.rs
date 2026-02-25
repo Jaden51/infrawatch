@@ -2,10 +2,16 @@ use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
 pub struct Config {
+    pub daemon: DaemonConfig,
     pub aws: AWSConfig,
     pub metrics: MetricsConfig,
     pub system: SystemConfig,
     pub analysis: AnalysisConfig,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct DaemonConfig {
+    pub poll_interval_secs: u64,
 }
 
 #[derive(Debug, Deserialize)]
@@ -16,6 +22,7 @@ pub struct AWSConfig {
 
 #[derive(Debug, Deserialize)]
 pub struct MetricsConfig {
+    pub enabled: bool,
     #[serde(default = "default_instance_metrics")]
     pub instance_metrics: Vec<String>,
 }

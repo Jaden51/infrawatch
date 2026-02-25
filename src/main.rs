@@ -1,9 +1,10 @@
 mod analysis;
 mod cloud;
 mod config;
+mod daemon;
 mod system;
 
-use std::path::Path;
+use std::{path::Path, process};
 
 use anyhow::Result;
 use clap::{Parser, Subcommand};
@@ -53,8 +54,14 @@ async fn main() -> Result<()> {
 
     match &cli.command {
         Commands::Run {} => {
-            println!("Starting the infrawatch daemon");
-            // TODO: implement daemon
+            let config = match config::load::load_config(config_path) {
+                Ok(config) => config,
+                Err(e) => {
+                    eprintln!("Error running the daemon: {e}");
+                    process::exit(1);
+                }
+            };
+            daemon::run(config).await?;
         }
         Commands::Check {} => {
             config::check::verify_config(config_path).await?;
