@@ -48,13 +48,6 @@ impl ThresholdDetector {
 
     fn create_anomaly(metric: &Metric, threshold: f64, severity: Severity) -> Anomaly {
         Anomaly {
-            metric: Metric {
-                name: metric.name.clone(),
-                value: metric.value,
-                source: metric.source.clone(),
-                unit: metric.unit.clone(),
-                timestamp: metric.timestamp,
-            },
             reason: Self::format_reason(metric, severity, threshold),
             severity: Severity::Critical,
             detected_at: Utc::now(),

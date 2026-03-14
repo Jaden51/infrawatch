@@ -30,9 +30,6 @@ pub struct MetricsConfig {
 #[derive(Debug, Deserialize)]
 pub struct SystemConfig {
     pub enabled: bool,
-    pub collect_memory: bool,
-    pub collect_disk: bool,
-    pub collect_processes: bool,
 }
 
 #[derive(Debug, Deserialize)]

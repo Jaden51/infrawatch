@@ -1,4 +1,3 @@
-use crate::analysis::types::Metric;
 use crate::system::types::SystemSnapshot;
 use crate::{
     cloud::{MetricsProvider, aws::AWSProvider},
