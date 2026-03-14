@@ -1,23 +1,33 @@
-[aws]
-# AWS region for CloudWatch and Cost Explorer APIs
-region = "us-east-1"
+[daemon]
+poll_interval_secs = 5
 
-# OPTIONAL:
-profile_name = "ec2_instance"
+[aws]
+region = "us-west-2"
+profile_name = "infrawatch-daemon"
 
 [metrics]
-# Cloud provider metrics to monitor
+enabled = true
 instance_metrics = ["CPUUtilization", "NetworkIn", "NetworkOut"]
 
 [system]
-# Enable system metrics collection
-enabled = true 
+enabled = true
 
-# Toggle memory metrics collection
-collect_memory = true
+[analysis]
+mode = "threshold"
 
-# Toggle disk metrics collection 
-collect_disk = true
+[[analysis.thresholds]]
+metric_name = "memory.usage_percent"
+warning = 80.0
+critical = 90.0
 
-# Toggle proccess metric collection
-collect_processes = true
+[[analysis.thresholds]]
+metric_name = "CPUUtilization"
+warning = 70.0
+critical = 90.0
+
+# Disk usage metrics are emitted as: disk.{mount}.usage_percent
+# For the root filesystem ("/"), the mount is normalized to "_": disk._.usage_percent
+[[analysis.thresholds]]
+metric_name = "disk._.usage_percent"
+warning = 80.0
+critical = 95.0

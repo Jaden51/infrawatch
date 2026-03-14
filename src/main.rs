@@ -4,9 +4,9 @@ mod config;
 mod daemon;
 mod system;
 
-use std::{path::Path, process};
+use std::path::Path;
 
-use anyhow::Result;
+use anyhow::{Context, Result};
 use clap::{Parser, Subcommand};
 
 #[derive(Parser)]
@@ -54,13 +54,8 @@ async fn main() -> Result<()> {
 
     match &cli.command {
         Commands::Run {} => {
-            let config = match config::load::load_config(config_path) {
-                Ok(config) => config,
-                Err(e) => {
-                    eprintln!("Error running the daemon: {e}");
-                    process::exit(1);
-                }
-            };
+            let config = config::load::load_config(config_path)
+                .with_context(|| "Error running the daemon")?;
             daemon::run(config).await?;
         }
         Commands::Check {} => {

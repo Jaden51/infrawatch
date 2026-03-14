@@ -29,7 +29,7 @@ pub async fn run(config: Config) -> Result<()> {
     if system_enabled {
         sys_collector = match SysinfoCollector::new() {
             Ok(sys_collector) => Some(sys_collector),
-            Err(e) => return Err(anyhow!("Error creating system metrics collector {e}")),
+            Err(e) => return Err(anyhow!("Error creating system metrics collector: {e}")),
         }
     }
     let mut aws_provider: Option<AWSProvider> = None;
