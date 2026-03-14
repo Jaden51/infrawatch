@@ -1,7 +1,7 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use anyhow::{Context, Result};
+use anyhow::{Context, Result, anyhow};
 
 use crate::config::configs::Config;
 
@@ -23,6 +23,12 @@ pub fn load_config(path: Option<&Path>) -> Result<Config> {
 
     let config: Config = toml::from_str(&contents)
         .with_context(|| format!("Failed to parse config from {}", config_path.display()))?;
+
+    if config.daemon.poll_interval_secs <= 0 {
+        return Err(anyhow!(
+            "Invalid configuration - daemon.poll_interval_secs must be greater than 0"
+        ));
+    }
 
     Ok(config)
 }

@@ -1,15 +1,16 @@
+[daemon]
+poll_interval_secs = 5
+
 [aws]
 region = "us-west-2"
 profile_name = "infrawatch-daemon"
 
 [metrics]
+enabled = true
 instance_metrics = ["CPUUtilization", "NetworkIn", "NetworkOut"]
 
 [system]
 enabled = true
-collect_memory = true
-collect_disk = true
-collect_processes = true
 
 [analysis]
 mode = "threshold"

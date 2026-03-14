@@ -11,7 +11,6 @@ pub struct Metric {
 
 #[derive(Debug)]
 pub struct Anomaly {
-    pub metric: Metric,
     pub reason: String,
     pub severity: Severity,
     pub detected_at: DateTime<Utc>,
