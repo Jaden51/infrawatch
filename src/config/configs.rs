@@ -7,6 +7,7 @@ pub struct Config {
     pub metrics: MetricsConfig,
     pub system: SystemConfig,
     pub analysis: AnalysisConfig,
+    pub alerting: AlertingConfig,
 }
 
 #[derive(Debug, Deserialize)]
@@ -43,6 +44,13 @@ pub struct ThresholdRule {
     pub metric_name: String,
     pub warning: Option<f64>,
     pub critical: Option<f64>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct AlertingConfig {
+    pub enabled: bool,
+    pub webhook_env: String,
+    pub webhook_url: Option<String>,
 }
 
 fn default_instance_metrics() -> Vec<String> {

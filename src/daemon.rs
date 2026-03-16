@@ -1,9 +1,6 @@
 use crate::{
-    analysis::AnomalyDetector,
-    analysis::threshold::ThresholdDetector,
-    analysis::types::Severity,
-    cloud::MetricsProvider,
-    cloud::aws::AWSProvider,
+    analysis::{AnomalyDetector, threshold::ThresholdDetector, types::Severity},
+    cloud::{MetricsProvider, aws::AWSProvider},
     config::configs::Config,
     system::{SystemCollector, collector::SysinfoCollector},
 };
