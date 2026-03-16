@@ -1,9 +1,11 @@
+mod alert;
 mod analysis;
 mod cloud;
 mod config;
 mod daemon;
 mod system;
 
+use dotenv::dotenv;
 use std::path::Path;
 
 use anyhow::{Context, Result};
@@ -48,6 +50,8 @@ enum Commands {
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    dotenv().ok();
+
     let cli = Cli::parse();
 
     let config_path = cli.config.as_ref().map(Path::new);

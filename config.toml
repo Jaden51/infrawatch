@@ -31,3 +31,7 @@ critical = 90.0
 metric_name = "disk._.usage_percent"
 warning = 80.0
 critical = 95.0
+
+[alerting]
+enabled = true
+webhook_env = "INFRAWATCH_DISCORD_WEBHOOK"
