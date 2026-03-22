@@ -1,5 +1,6 @@
 use crate::{
-    analysis::{AnomalyDetector, threshold::ThresholdDetector, types::Severity},
+    alert::{AlertSender, discord::DiscordAlerter},
+    analysis::{AnomalyDetector, threshold::ThresholdDetector},
     cloud::{MetricsProvider, aws::AWSProvider},
     config::configs::Config,
     system::{SystemCollector, collector::SysinfoCollector},
@@ -132,15 +133,10 @@ async fn poll_cycle(
     );
 
     println!("anomaly detection mode: {}", config.analysis.mode);
-    for anomaly in anomalies {
-        let severity = match anomaly.severity {
-            Severity::Warning => "WARNING",
-            Severity::Critical => "CRITICAL",
-        };
-        println!(
-            "[{}] {}. Detected at {}",
-            severity, anomaly.reason, anomaly.detected_at
-        );
+
+    if config.alerting.enabled {
+        let discord_alerter = DiscordAlerter::new(&config.alerting).unwrap();
+        discord_alerter.send(&anomalies).await?;
     }
 
     Ok(())
