@@ -32,7 +32,7 @@ impl ThresholdDetector {
         }
     }
 
-    fn format_reason(metric: &Metric, severity: Severity, threshold: f64) -> String {
+    fn format_reason(metric: &Metric, severity: &Severity, threshold: f64) -> String {
         let unit = metric.unit.as_deref();
         let value = Self::format_value(metric.value, unit);
         let threshold_value = Self::format_value(threshold, unit);
@@ -48,8 +48,8 @@ impl ThresholdDetector {
 
     fn create_anomaly(metric: &Metric, threshold: f64, severity: Severity) -> Anomaly {
         Anomaly {
-            reason: Self::format_reason(metric, severity, threshold),
-            severity: Severity::Critical,
+            reason: Self::format_reason(metric, &severity, threshold),
+            severity: severity,
             detected_at: Utc::now(),
         }
     }

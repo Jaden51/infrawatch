@@ -36,7 +36,7 @@ impl AlertSender for DiscordAlerter {
                 Severity::Critical => "CRITICAL",
             };
             let message = format!(
-                "[{}] {}. Detected at {}",
+                "## Test [{}] {}. Detected at {}",
                 severity, anomaly.reason, anomaly.detected_at
             );
 
